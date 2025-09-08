@@ -13,12 +13,14 @@ function ResumeAI() {
   const chatContainerRef = useRef(null);
   const textareaRef = useRef(null);
 
+  // Handle chat container scroll
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
 
+  // Handle auto-focus on textarea
   useEffect(() => {
     if (isChatReady && textareaRef.current) {
       textareaRef.current.focus();
@@ -29,20 +31,28 @@ function ResumeAI() {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
     setFile(selectedFile);
-    // Simulating text extraction from a file
-    const fakeText = `John Doe, Senior Software Engineer, New York. Skills: JavaScript, Python, React, Node.js. Experience: Built and deployed a full-stack e-commerce platform, achieving a 20% increase in user engagement. Education: Master of Science in Computer Science.`;
-    setResumeText(fakeText);
+    setIsLoading(true);
+
+    // Simulate text extraction from a file
+    const fakeExtractedText = `John Doe, Senior Software Engineer, New York.
+Skills: JavaScript, Python, React, Node.js.
+Experience: Built and deployed a full-stack e-commerce platform, achieving a 20% increase in user engagement.
+Education: Master of Science in Computer Science.`;
+
+    setResumeText(fakeExtractedText);
+    setIsLoading(false);
     setIsChatReady(true);
+
     setMessages([
       {
-        text: "Hey there! I've processed your resume. Let's make it shine. What would you like to focus on?",
+        text: "Hey there! I've processed your resume. It's now ready for editing. What would you like to focus on?",
         sender: "bot",
       },
     ]);
-    setAiSuggestions(["Analyze Skills", "Review Experience", "Give General Feedback"]);
+    setAiSuggestions(["Analyze Skills", "Review Experience", "Make professional"]);
   };
 
-  const handleAsk = (userPrompt) => {
+  const handleAsk = async (userPrompt) => {
     const finalPrompt = userPrompt || prompt;
     if (!finalPrompt.trim()) return;
 
@@ -52,30 +62,35 @@ function ResumeAI() {
     setIsLoading(true);
     setAiSuggestions([]);
 
-    // Simulating a more dynamic AI response based on the resume text
-    setTimeout(() => {
-      let botResponse = "I'm not sure how to help with that. Please ask about your skills, experience, or education.";
-      let suggestions = ["Analyze Skills", "Review Experience", "Give General Feedback"];
+    let botResponse = "I'm not sure how to help with that. Please ask about your skills, experience, or education.";
+    let suggestions = ["Analyze Skills", "Review Experience", "Give General Feedback"];
+    let newText = resumeText;
 
-      if (finalPrompt.toLowerCase().includes("skills")) {
-        botResponse = "I see strong skills in **React** and **Node.js**. To improve, you could add project details that demonstrate these skills in a practical setting. Would you like me to find some project ideas?";
-        suggestions = ["Suggest React projects", "Suggest Node.js projects", "Analyze another section"];
-      } else if (finalPrompt.toLowerCase().includes("experience")) {
-        botResponse = "Your experience in building and deploying a platform is impressive. To make it even better, consider adding specific metrics or results for your other roles. For example, 'increased conversion rate by X%'.";
-        suggestions = ["Help me quantify my achievements", "Find similar job descriptions", "Analyze another section"];
-      } else if (finalPrompt.toLowerCase().includes("education")) {
-        botResponse = "Your education background is solid. For some roles, highlighting relevant coursework or a thesis topic can add a lot of value. Is that something you're interested in?";
-        suggestions = ["Highlight coursework", "Add thesis details", "Analyze another section"];
-      } else if (finalPrompt.toLowerCase().includes("feedback")) {
-        botResponse = "Overall, your resume is well-structured and easy to read. To make it stand out, I recommend using more action verbs at the beginning of your bullet points. Would you like to see some examples?";
-        suggestions = ["Show me action verb examples", "Help me rephrase a bullet point", "Analyze another section"];
-      }
+    if (finalPrompt.toLowerCase().includes("skills")) {
+      botResponse = "I see strong skills in **React** and **Node.js**. To improve, you could add project details that demonstrate these skills in a practical setting. Would you like me to find some project ideas?";
+      suggestions = ["Suggest React projects", "Suggest Node.js projects", "Analyze another section"];
+    } else if (finalPrompt.toLowerCase().includes("experience")) {
+      botResponse = "Your experience in building and deploying a platform is impressive. To make it even better, consider adding specific metrics or results for your other roles. For example, 'increased conversion rate by X%'.";
+      suggestions = ["Help me quantify my achievements", "Find similar job descriptions", "Analyze another section"];
+    } else if (finalPrompt.toLowerCase().includes("professional")) {
+      const originalText = resumeText;
+      newText = originalText
+        .replace("Built and deployed", "Spearheaded the development and deployment of")
+        .replace("achieving a 20% increase", "resulting in a 20% increase")
+        .replace("John Doe", "Jane Doe"); // Example edit
+      
+      setResumeText(newText);
+      botResponse = "I've made some of your language more professional and impactful. You can see the changes above and feel free to edit them directly.";
+      suggestions = ["Revert changes", "Make more concise", "Analyze another section"];
+    } else {
+      botResponse = "I am a simple bot. Please ask to make professional changes to the resume text. Thank you!";
+      suggestions = ["Make professional", "Analyze another section"];
+    }
 
-      const botMessage = { text: botResponse, sender: "bot" };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-      setAiSuggestions(suggestions);
-      setIsLoading(false);
-    }, 1500);
+    const botMessage = { text: botResponse, sender: "bot" };
+    setMessages((prevMessages) => [...prevMessages, botMessage]);
+    setAiSuggestions(suggestions);
+    setIsLoading(false);
   };
 
   const Card = ({ children }) => (
@@ -131,7 +146,7 @@ function ResumeAI() {
       </Card>
 
       {/* Resume Text Preview */}
-      {resumeText && (
+      {isChatReady && (
         <Card>
           <h3 className="text-2xl font-semibold mb-4 text-emerald-400">
             📄 Extracted Resume Text
@@ -142,9 +157,11 @@ function ResumeAI() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="bg-white text-gray-900 p-6 rounded-lg max-h-96 overflow-y-auto shadow-inner"
           >
-            <pre className="whitespace-pre-wrap font-mono text-sm">
-              {resumeText}
-            </pre>
+            <textarea
+              value={resumeText}
+              onChange={(e) => setResumeText(e.target.value)}
+              className="w-full h-full p-2 bg-transparent border-none focus:outline-none resize-none font-mono text-sm"
+            ></textarea>
           </motion.div>
         </Card>
       )}
