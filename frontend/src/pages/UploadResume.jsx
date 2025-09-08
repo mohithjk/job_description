@@ -1,107 +1,235 @@
-// ResumeAI.jsx
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
 function ResumeAI() {
   const [file, setFile] = useState(null);
   const [resumeText, setResumeText] = useState("");
   const [prompt, setPrompt] = useState("");
-  const [aiResponse, setAiResponse] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [isChatReady, setIsChatReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState([]);
+
+  const chatContainerRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (isChatReady && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isChatReady]);
 
   const handleUpload = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
     setFile(selectedFile);
-    const fakeText = `📄 Extracted text from ${selectedFile.name} will appear here...`;
+    // Simulating text extraction from a file
+    const fakeText = `John Doe, Senior Software Engineer, New York. Skills: JavaScript, Python, React, Node.js. Experience: Built and deployed a full-stack e-commerce platform, achieving a 20% increase in user engagement. Education: Master of Science in Computer Science.`;
     setResumeText(fakeText);
-    setAiResponse("");
+    setIsChatReady(true);
+    setMessages([
+      {
+        text: "Hey there! I've processed your resume. Let's make it shine. What would you like to focus on?",
+        sender: "bot",
+      },
+    ]);
+    setAiSuggestions(["Analyze Skills", "Review Experience", "Give General Feedback"]);
   };
 
-  const handleAsk = () => {
-    if (!prompt) return;
-    setAiResponse(`🤖 AI Bot says: "You asked: '${prompt}' about your resume."`);
+  const handleAsk = (userPrompt) => {
+    const finalPrompt = userPrompt || prompt;
+    if (!finalPrompt.trim()) return;
+
+    const userMessage = { text: finalPrompt, sender: "user" };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setPrompt("");
+    setIsLoading(true);
+    setAiSuggestions([]);
+
+    // Simulating a more dynamic AI response based on the resume text
+    setTimeout(() => {
+      let botResponse = "I'm not sure how to help with that. Please ask about your skills, experience, or education.";
+      let suggestions = ["Analyze Skills", "Review Experience", "Give General Feedback"];
+
+      if (finalPrompt.toLowerCase().includes("skills")) {
+        botResponse = "I see strong skills in **React** and **Node.js**. To improve, you could add project details that demonstrate these skills in a practical setting. Would you like me to find some project ideas?";
+        suggestions = ["Suggest React projects", "Suggest Node.js projects", "Analyze another section"];
+      } else if (finalPrompt.toLowerCase().includes("experience")) {
+        botResponse = "Your experience in building and deploying a platform is impressive. To make it even better, consider adding specific metrics or results for your other roles. For example, 'increased conversion rate by X%'.";
+        suggestions = ["Help me quantify my achievements", "Find similar job descriptions", "Analyze another section"];
+      } else if (finalPrompt.toLowerCase().includes("education")) {
+        botResponse = "Your education background is solid. For some roles, highlighting relevant coursework or a thesis topic can add a lot of value. Is that something you're interested in?";
+        suggestions = ["Highlight coursework", "Add thesis details", "Analyze another section"];
+      } else if (finalPrompt.toLowerCase().includes("feedback")) {
+        botResponse = "Overall, your resume is well-structured and easy to read. To make it stand out, I recommend using more action verbs at the beginning of your bullet points. Would you like to see some examples?";
+        suggestions = ["Show me action verb examples", "Help me rephrase a bullet point", "Analyze another section"];
+      }
+
+      const botMessage = { text: botResponse, sender: "bot" };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      setAiSuggestions(suggestions);
+      setIsLoading(false);
+    }, 1500);
   };
 
-  const cardStyle = {
-    borderRadius: "20px",
-    padding: "2rem",
-    marginBottom: "2rem",
-    width: "90%",
-    maxWidth: "1000px",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-    color: "white",
-    background: "linear-gradient(135deg, #4f46e5, #3b82f6)",
-  };
+  const Card = ({ children }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-slate-800 p-8 rounded-2xl shadow-xl w-11/12 max-w-4xl mb-8"
+    >
+      {children}
+    </motion.div>
+  );
+
+  const Message = ({ message }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`p-3 rounded-lg max-w-[85%] ${
+        message.sender === "user"
+          ? "bg-emerald-500 text-white self-end rounded-br-none"
+          : "bg-slate-700 text-white rounded-bl-none"
+      }`}
+    >
+      {message.text}
+    </motion.div>
+  );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0f4ff", display: "flex", flexDirection: "column", alignItems: "center", padding: "2rem 0", fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
-      
+    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-8 font-sans">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
-        style={{ textAlign: "center", marginBottom: "3rem", background: "linear-gradient(135deg, #6b21a8, #3b82f6)", padding: "3rem 2rem", borderRadius: "20px", width: "90%", maxWidth: "1000px", boxShadow: "0 8px 25px rgba(0,0,0,0.2)" }}
+        className="text-center mb-12"
       >
-        <h1 style={{ margin: 0, fontSize: "2.5rem" }}>💼 Smart Resume AI</h1>
-        <p style={{ marginTop: "0.5rem", fontSize: "1.2rem", color: "#e0e7ff" }}>Upload your resume and chat with AI instantly!</p>
+        <h1 className="text-5xl font-extrabold mb-2 text-emerald-400">
+          JobSpy
+        </h1>
+        <p className="text-xl text-white opacity-80">Find Your Dream Job</p>
       </motion.div>
 
       {/* Upload Resume Section */}
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        style={cardStyle}
-      >
-        <h2>📂 Upload Resume</h2>
-        <input type="file" accept=".pdf,.docx" onChange={handleUpload} style={{ width: "100%", padding: "1rem", borderRadius: "10px", border: "1px solid #ccc", marginTop: "1rem", background: "#fff", color: "#000" }} />
-      </motion.div>
+      <Card>
+        <h2 className="text-2xl font-semibold mb-4">📂 Upload Resume</h2>
+        <input
+          type="file"
+          accept=".pdf,.docx"
+          onChange={handleUpload}
+          className="w-full text-white bg-slate-700 rounded-lg py-3 px-4 transition duration-300 ease-in-out hover:bg-slate-600 focus:outline-none focus:ring focus:ring-emerald-400 focus:ring-opacity-50 cursor-pointer"
+        />
+      </Card>
 
       {/* Resume Text Preview */}
       {resumeText && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          style={{ ...cardStyle, background: "#fff", color: "#1e3a8a", maxHeight: "400px", overflowY: "auto" }}
-        >
-          <h3 style={{ color: "#1e3a8a" }}>📄 Extracted Resume Text</h3>
-          <pre style={{ whiteSpace: "pre-wrap", color: "#111" }}>{resumeText}</pre>
-        </motion.div>
+        <Card>
+          <h3 className="text-2xl font-semibold mb-4 text-emerald-400">
+            📄 Extracted Resume Text
+          </h3>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white text-gray-900 p-6 rounded-lg max-h-96 overflow-y-auto shadow-inner"
+          >
+            <pre className="whitespace-pre-wrap font-mono text-sm">
+              {resumeText}
+            </pre>
+          </motion.div>
+        </Card>
       )}
 
       {/* AI Chat */}
-      {resumeText && (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          style={{ ...cardStyle, background: "linear-gradient(135deg, #10b981, #3b82f6)" }}
-        >
-          <h2>💬 Ask the AI</h2>
-          <textarea
-            placeholder="Ask AI about your resume..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            style={{ width: "100%", padding: "1rem", borderRadius: "10px", border: "1px solid #ccc", minHeight: "120px", marginTop: "1rem" }}
-          />
-          <motion.button
-            onClick={handleAsk}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{ marginTop: "1rem", padding: "0.8rem 1.5rem", borderRadius: "10px", background: "#3b82f6", color: "white", border: "none", cursor: "pointer", fontWeight: "bold" }}
+      {isChatReady && (
+        <Card>
+          <h2 className="text-2xl font-semibold mb-4">💬 Chat with the AI</h2>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col space-y-4 p-4 h-80 overflow-y-auto bg-slate-700 rounded-lg"
+            ref={chatContainerRef}
           >
-            Ask AI
-          </motion.button>
-
-          {aiResponse && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ marginTop: "1.5rem", padding: "1rem", borderRadius: "10px", background: "#e0f2fe", color: "#0369a1" }}>
-              <h3>🤖 AI Response:</h3>
-              <p>{aiResponse}</p>
-            </motion.div>
+            {messages.map((msg, index) => (
+              <Message key={index} message={msg} />
+            ))}
+            {isLoading && (
+              <div className="p-3 rounded-lg max-w-[85%] bg-slate-700 text-white rounded-bl-none self-start">
+                <div className="flex space-x-1">
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.6 }}
+                    className="w-2 h-2 rounded-full bg-white"
+                  />
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
+                    className="w-2 h-2 rounded-full bg-white"
+                  />
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}
+                    className="w-2 h-2 rounded-full bg-white"
+                  />
+                </div>
+              </div>
+            )}
+          </motion.div>
+          
+          {/* AI Suggestions */}
+          {aiSuggestions.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {aiSuggestions.map((suggestion, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => handleAsk(suggestion)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-slate-700 text-white text-sm px-4 py-2 rounded-full border-2 border-emerald-500 transition-colors hover:bg-emerald-500"
+                >
+                  {suggestion}
+                </motion.button>
+              ))}
+            </div>
           )}
-        </motion.div>
+
+          <div className="flex mt-4 space-x-2">
+            <textarea
+              ref={textareaRef}
+              placeholder="Ask AI about your resume..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAsk();
+                }
+              }}
+              className="flex-grow text-white bg-slate-700 rounded-lg p-3 transition duration-300 ease-in-out focus:outline-none focus:ring focus:ring-emerald-400 focus:ring-opacity-50"
+              rows="1"
+            />
+            <motion.button
+              onClick={() => handleAsk()}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-emerald-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out hover:bg-emerald-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+              </svg>
+            </motion.button>
+          </div>
+        </Card>
       )}
     </div>
   );
