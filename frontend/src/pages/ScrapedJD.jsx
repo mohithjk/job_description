@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 function ScrapedJD() {
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    // Fetch jobs from Flask backend
     fetch("http://127.0.0.1:5000/jobs")
       .then((res) => res.json())
       .then((data) => setJobs(data.jobs || []))
@@ -13,43 +12,67 @@ function ScrapedJD() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8">
-      <h1 className="text-4xl font-extrabold text-white text-center mb-8 drop-shadow-lg">
-        🔍 Recommended Jobs
+    <div className="min-h-screen flex flex-col items-center justify-center">
+      <h1 className="text-2xl text-brand-primary sm:text-3xl md:text-4xl font-extrabold text-center mb-6 sm:mb-8 drop-shadow-sm">
+        Scraped Jobs
       </h1>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {jobs.length > 0 ? (
-          jobs.map((job, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white/20 backdrop-blur-lg shadow-lg rounded-2xl p-6 border border-white/30 text-white"
-            >
-              <h2 className="text-2xl font-bold">{job.title}</h2>
-              <p className="mt-2 text-lg opacity-90">{job.company}</p>
-              <p className="text-sm opacity-80">📍 {job.location}</p>
-              <p className="text-sm opacity-80">Remote: {job.remote}</p>
-              <a
-                href={job.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-block bg-gradient-to-r from-pink-500 to-yellow-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:opacity-90 transition"
-              >
-                Apply Now 🚀
-              </a>
-            </motion.div>
-          ))
-        ) : (
-          <p className="text-white text-center text-lg">
-            ⏳ Loading jobs, please wait...
-          </p>
-        )}
-      </div>
+      {jobs.length > 0 ? (
+        <div className="overflow-x-auto rounded-2xl shadow border border-b-0 border-white/20">
+          <table className="w-full border-collapse text-xs sm:text-sm md:text-base">
+            <thead className="bg-brand-primary text-white text-left uppercase tracking-wide sticky top-0 z-10">
+              <tr>
+                <th className="p-2 sm:p-3">#</th>
+                <th className="p-2 sm:p-3">Title</th>
+                <th className="p-2 sm:p-3">Company</th>
+                <th className="p-2 sm:p-3">Location</th>
+                <th className="p-2 sm:p-3">Remote</th>
+                <th className="p-2 sm:p-3">Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              {jobs.map((job, index) => (
+                <motion.tr
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800 transition border-b border-b-gray-600"
+                >
+                  <td className="p-2 sm:p-3">{index + 1}</td>
+                  <td className="p-2 sm:p-3 font-semibold">{job.title}</td>
+                  <td className="p-2 sm:p-3">{job.company}</td>
+                  <td className="p-2 sm:p-3">{job.location}</td>
+                  <td className="p-2 sm:p-3">
+                    {job.remote ? (
+                      <span className="text-brand-accent font-medium">Yes</span>
+                    ) : (
+                      <span className="text-red-500 font-medium">No</span>
+                    )}
+                  </td>
+                  <td className="p-2 sm:p-3">
+                    <a
+                      href={job.apply_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold shadow-md bg-emerald-600 text-white hover:bg-emerald-700 transition-colors duration-200 text-nowrap"
+                    >
+                      Apply
+                    </a>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p
+          className="text-center text-sm sm:text-base md:text-lg mt-6"
+          style={{ color: "var(--color-brand-muted)" }}
+        >
+          ⏳ Loading jobs, please wait...
+        </p>
+      )}
     </div>
   );
 }

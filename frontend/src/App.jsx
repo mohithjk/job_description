@@ -2,22 +2,22 @@ import { Outlet, NavLink } from "react-router-dom";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col font-inter bg-[var(--color-brand-bg)] text-[var(--color-brand-text)]">
+    <div className="min-h-screen flex flex-col font-inter bg-brand-bg text-brand-text">
       {/* Navbar */}
       <header className="border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           {/* Logo */}
-          <h1 className="text-xl font-bold text-[var(--color-brand-primary)]">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-color-brand-primary">
             JobSpy
           </h1>
 
           {/* Nav Links */}
-          <nav className="space-x-6 text-sm font-medium">
+          <nav className="space-x-4 sm:space-x-6 text-xs sm:text-sm md:text-base font-medium">
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `hover:text-[var(--color-brand-primary)] transition ${
-                  isActive ? "text-[var(--color-brand-primary)]" : ""
+                `hover:text-brand-primary transition ${
+                  isActive ? "text-brand-primary" : ""
                 }`
               }
             >
@@ -26,8 +26,8 @@ function App() {
             <NavLink
               to="/upload"
               className={({ isActive }) =>
-                `hover:text-[var(--color-brand-primary)] transition ${
-                  isActive ? "text-[var(--color-brand-primary)]" : ""
+                `hover:text-brand-primary transition ${
+                  isActive ? "text-brand-primary" : ""
                 }`
               }
             >
@@ -36,8 +36,8 @@ function App() {
             <NavLink
               to="/jds"
               className={({ isActive }) =>
-                `hover:text-[var(--color-brand-primary)] transition ${
-                  isActive ? "text-[var(--color-brand-primary)]" : ""
+                `hover:text-brand-primary transition ${
+                  isActive ? "text-brand-primary" : ""
                 }`
               }
             >
@@ -46,8 +46,8 @@ function App() {
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
-                `hover:text-[var(--color-brand-primary)] transition ${
-                  isActive ? "text-[var(--color-brand-primary)]" : ""
+                `hover:text-brand-primary transition ${
+                  isActive ? "text-brand-primary" : ""
                 }`
               }
             >
@@ -63,7 +63,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm text-[var(--color-brand-muted)]">
+      <footer className="border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm text-brand-muted">
         © {new Date().getFullYear()} JobSpy
       </footer>
     </div>

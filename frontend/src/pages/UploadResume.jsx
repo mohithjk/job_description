@@ -1,5 +1,4 @@
-// ResumeAI.jsx
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
 function ResumeAI() {
@@ -8,54 +7,74 @@ function ResumeAI() {
   const [prompt, setPrompt] = useState("");
   const [aiResponse, setAiResponse] = useState("");
 
-  const handleUpload = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    const droppedFile = e.dataTransfer.files[0];
+    if (!droppedFile) return;
+    processFile(droppedFile);
+  }, []);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const processFile = (selectedFile) => {
     setFile(selectedFile);
-    const fakeText = `📄 Extracted text from ${selectedFile.name} will appear here...`;
+    const fakeText = `Extracted text from ${selectedFile.name} will appear here...`;
     setResumeText(fakeText);
     setAiResponse("");
   };
 
-  const handleAsk = () => {
-    if (!prompt) return;
-    setAiResponse(`🤖 AI Bot says: "You asked: '${prompt}' about your resume."`);
+  const handleUpload = (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+    processFile(selectedFile);
   };
 
-  const cardStyle = {
-    borderRadius: "20px",
-    padding: "2rem",
-    marginBottom: "2rem",
-    width: "90%",
-    maxWidth: "1000px",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-    color: "white",
-    background: "linear-gradient(135deg, #4f46e5, #3b82f6)",
+  const handleAsk = () => {
+    if (!prompt) return;
+    setAiResponse(
+      `🤖 AI Bot says: "You asked: '${prompt}' about your resume."`
+    );
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0f4ff", display: "flex", flexDirection: "column", alignItems: "center", padding: "2rem 0", fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
-      
+    <div className="min-h-screen flex flex-col items-center p-6 sm:p-8 font-inter bg-brand-bg text-brand-text">
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: -50 }}
+        initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        style={{ textAlign: "center", marginBottom: "3rem", background: "linear-gradient(135deg, #6b21a8, #3b82f6)", padding: "3rem 2rem", borderRadius: "20px", width: "90%", maxWidth: "1000px", boxShadow: "0 8px 25px rgba(0,0,0,0.2)" }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-4"
       >
-        <h1 style={{ margin: 0, fontSize: "2.5rem" }}>💼 Smart Resume AI</h1>
-        <p style={{ marginTop: "0.5rem", fontSize: "1.2rem", color: "#e0e7ff" }}>Upload your resume and chat with AI instantly!</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-primary">
+          JobSpy 🔍
+        </h1>
+        <p className="mt-2 text-sm sm:text-base md:text-lg text-brand-muted">
+          Upload your resume and chat with AI instantly
+        </p>
       </motion.div>
 
-      {/* Upload Resume Section */}
+      {/* Drag & Drop Zone */}
       <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        style={cardStyle}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-2xl p-8 sm:p-12 md:p-16 text-center rounded-xl border-2 border-dashed border-brand-accent cursor-pointer hover:bg-gray-800"
+        onClick={() => document.getElementById("resumeInput").click()}
       >
-        <h2>📂 Upload Resume</h2>
-        <input type="file" accept=".pdf,.docx" onChange={handleUpload} style={{ width: "100%", padding: "1rem", borderRadius: "10px", border: "1px solid #ccc", marginTop: "1rem", background: "#fff", color: "#000" }} />
+        <p className="text-sm sm:text-base md:text-lg text-brand-muted">
+          📂 Drag & drop your resume here, or click to upload
+        </p>
+        <input
+          type="file"
+          id="resumeInput"
+          accept=".pdf,.docx"
+          onChange={handleUpload}
+          className="hidden"
+        />
       </motion.div>
 
       {/* Resume Text Preview */}
@@ -63,42 +82,55 @@ function ResumeAI() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          style={{ ...cardStyle, background: "#fff", color: "#1e3a8a", maxHeight: "400px", overflowY: "auto" }}
+          transition={{ delay: 0.3 }}
+          className="w-full max-w-2xl mt-8 p-6 rounded-xl border border-brand-muted bg-transparent max-h-72 overflow-y-auto"
         >
-          <h3 style={{ color: "#1e3a8a" }}>📄 Extracted Resume Text</h3>
-          <pre style={{ whiteSpace: "pre-wrap", color: "#111" }}>{resumeText}</pre>
+          <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-3 text-brand-accent">
+            Extracted Resume Text
+          </h3>
+          <pre className="whitespace-pre-wrap text-sm sm:text-base md:text-lg text-brand-text">
+            {resumeText}
+          </pre>
         </motion.div>
       )}
 
       {/* AI Chat */}
       {resumeText && (
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          style={{ ...cardStyle, background: "linear-gradient(135deg, #10b981, #3b82f6)" }}
+          transition={{ delay: 0.5 }}
+          className="w-full max-w-2xl mt-8 p-6 rounded-xl border border-brand-muted bg-transparent"
         >
-          <h2>💬 Ask the AI</h2>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-brand-accent">
+            Ask the AI
+          </h2>
           <textarea
             placeholder="Ask AI about your resume..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            style={{ width: "100%", padding: "1rem", borderRadius: "10px", border: "1px solid #ccc", minHeight: "120px", marginTop: "1rem" }}
+            className="w-full mt-4 p-3 rounded-lg border border-brand-muted min-h-[100px] font-inter focus:outline-none focus:ring-2 focus:ring-brand-primary text-sm sm:text-base md:text-lg"
           />
           <motion.button
             onClick={handleAsk}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{ marginTop: "1rem", padding: "0.8rem 1.5rem", borderRadius: "10px", background: "#3b82f6", color: "white", border: "none", cursor: "pointer", fontWeight: "bold" }}
+            className="mt-4 px-6 py-2 rounded-lg bg-brand-primary text-white font-semibold shadow hover:opacity-90 transition text-sm sm:text-base"
           >
             Ask AI
           </motion.button>
 
           {aiResponse && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ marginTop: "1.5rem", padding: "1rem", borderRadius: "10px", background: "#e0f2fe", color: "#0369a1" }}>
-              <h3>🤖 AI Response:</h3>
-              <p>{aiResponse}</p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 p-4 rounded-lg border border-brand-accent bg-brand-bg"
+            >
+              <h3 className="font-semibold text-sm sm:text-base md:text-lg text-brand-accent mb-2">
+                AI Response:
+              </h3>
+              <p className="text-sm sm:text-base md:text-lg">{aiResponse}</p>
             </motion.div>
           )}
         </motion.div>
