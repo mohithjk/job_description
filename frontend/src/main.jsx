@@ -7,6 +7,9 @@ import Home from "./pages/Home";
 import UploadResume from "./pages/UploadResume";
 import Analytics from "./pages/Analytics";
 import ScrapedJD from "./pages/ScrapedJD";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+
 
 const router = createBrowserRouter([
   {
@@ -17,9 +20,13 @@ const router = createBrowserRouter([
       { path: "upload", element: <UploadResume /> },
       { path: "analytics", element: <Analytics /> },
       { path: "jds", element: <ScrapedJD /> },
+      { path: "login", element: <Login /> },
+      { path: "signup", element: <Signup /> },
     ],
   },
 ]);
+
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

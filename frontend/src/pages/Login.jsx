@@ -1,70 +1,60 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useOutletContext, useNavigate, Link } from "react-router-dom";
 
-function Login({ onLogin }) {
-  const [name, setName] = useState("");
+function Login() {
   const [email, setEmail] = useState("");
-  const [skills, setSkills] = useState("");
+  const [password, setPassword] = useState("");
+  const { setIsLoggedIn } = useOutletContext();
+  const navigate = useNavigate();
 
   const handleLogin = () => {
-    if (name && email && skills) {
-      onLogin({ name, email, skills });
+    if (email && password) {
+      setIsLoggedIn(true);
+      navigate("/"); // go to homepage
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      {/* Background with subtle gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
-
-      {/* Login Form Container */}
+    <div className="flex items-center justify-center min-h-screen bg-slate-900">
       <motion.div
-        initial={{ opacity: 0, y: -50 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative bg-white bg-opacity-5 backdrop-filter backdrop-blur-lg p-10 rounded-3xl shadow-2xl w-11/12 max-w-lg z-10 border border-white border-opacity-20"
+        transition={{ duration: 0.6 }}
+        className="bg-slate-800 p-8 rounded-2xl shadow-lg w-11/12 max-w-md text-white"
       >
-        <h2 className="text-3xl font-bold mb-3 text-emerald-400">👋 Welcome to JobSpy!</h2>
-        <p className="text-lg mb-8 text-white text-opacity-80">
-          Enter your details to find your dream job.
-        </p>
-        
-        {/* Input Fields */}
-        <div className="space-y-6">
-          <input
-            type="text"
-            placeholder="Your Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-slate-700 bg-opacity-40 text-white rounded-xl py-3 px-5 transition duration-300 ease-in-out hover:bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-opacity-50 placeholder-gray-400"
-          />
-          <input
-            type="email"
-            placeholder="Your Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-slate-700 bg-opacity-40 text-white rounded-xl py-3 px-5 transition duration-300 ease-in-out hover:bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-opacity-50 placeholder-gray-400"
-          />
-          <textarea
-            placeholder="Your skills (e.g., Python, JavaScript, React)"
-            value={skills}
-            onChange={(e) => setSkills(e.target.value)}
-            className="w-full bg-slate-700 bg-opacity-40 text-white rounded-xl py-3 px-5 transition duration-300 ease-in-out hover:bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-opacity-50 placeholder-gray-400 resize-none"
-            rows="3"
-          />
-        </div>
+        <h2 className="text-2xl font-bold mb-4 text-emerald-400">Login</h2>
 
-        {/* Action Button */}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full bg-slate-700 rounded-lg py-3 px-4 mb-4 focus:outline-none focus:ring focus:ring-emerald-400"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full bg-slate-700 rounded-lg py-3 px-4 mb-6 focus:outline-none focus:ring focus:ring-emerald-400"
+        />
+
         <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleLogin}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-8 w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out hover:from-emerald-600 hover:to-emerald-700"
+          className="w-full bg-emerald-500 py-3 rounded-full font-bold hover:bg-emerald-600"
         >
-          Start Job Hunting!
+          Log In
         </motion.button>
 
-        <p className="text-xs text-center text-white text-opacity-50 mt-4">By continuing, you agree to our terms and conditions.</p>
+        <p className="mt-4 text-center text-sm text-gray-300">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-emerald-400 hover:underline">
+            Signup
+          </Link>
+        </p>
       </motion.div>
     </div>
   );
