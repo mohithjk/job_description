@@ -3,12 +3,19 @@ import { motion } from "framer-motion";
 
 function ScrapedJD() {
   const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/jobs")
       .then((res) => res.json())
-      .then((data) => setJobs(data.jobs || []))
-      .catch((err) => console.error("❌ Error fetching jobs:", err));
+      .then((data) => {
+        setJobs(data.jobs || []);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("❌ Error fetching jobs:", err);
+        setIsLoading(false);
+      });
   }, []);
 
   return (
